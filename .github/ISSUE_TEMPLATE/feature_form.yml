@@ -1,0 +1,40 @@
+name: ✨ Feature Template
+description: 새로운 기능을 제안하기 위한 이슈 폼입니다.
+title: "[FEAT] "
+labels: ["enhancement"]
+body:
+  # 1. 모듈 선택 (체크박스 그룹)
+  - type: checkboxes
+    id: modules
+    attributes:
+      label: 📝 모듈
+      description: 관련된 모듈을 모두 선택해주세요.
+      options:
+        - label: Shared
+        - label: Server
+        - label: Android
+        - label: iOS
+        - label: 기타
+    validations:
+      required: true
+
+  # 2. 작업 내용 (여러 줄 입력)
+  - type: textarea
+    id: tasks
+    attributes:
+      label: ✨ 작업 내용
+      description: 제안하는 기능을 세분화해서 작성해주세요.
+      placeholder: |
+        - 기능 명세 1
+        - 기능 명세 2
+    validations:
+      required: true
+
+  # 3. 참고 사항 (여러 줄 입력)
+  - type: textarea
+    id: references
+    attributes:
+      label: 💡 참고 사항
+      description: 다른 개발자들이 추가적으로 알아야 하는 정보를 작성해주세요.
+    validations:
+      required: false
