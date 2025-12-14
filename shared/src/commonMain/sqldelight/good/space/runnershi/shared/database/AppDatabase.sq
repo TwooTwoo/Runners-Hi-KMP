@@ -1,0 +1,24 @@
+-- SQLDelight 데이터베이스 스키마 예제
+-- 가이드 IDEA 9에 따른 표준 라이브러리 스택 사용
+
+CREATE TABLE user (
+    id TEXT PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    created_at INTEGER NOT NULL
+);
+
+CREATE INDEX user_email ON user(email);
+
+insertUser:
+INSERT INTO user(id, name, email, created_at)
+VALUES (?, ?, ?, ?);
+
+getAllUsers:
+SELECT * FROM user;
+
+getUserById:
+SELECT * FROM user WHERE id = ?;
+
+deleteUser:
+DELETE FROM user WHERE id = ?;

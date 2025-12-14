@@ -1,0 +1,85 @@
+# -------------------------
+# 1. Global / IDE
+# -------------------------
+.idea/
+*.iml
+*.iws
+*.ipr
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.gradle
+**/build/
+!src/**/build/
+build/
+gradle-app.setting
+!gradle-wrapper.jar
+.kotlin
+kotlin-js-store/
+.konan/
+
+# -------------------------
+# 2. Android
+# -------------------------
+captures/
+.externalNativeBuild
+.cxx
+*.apk
+*.aab
+*.ap_
+*.dex
+local.properties
+.navigation/
+
+# -------------------------
+# 3. iOS
+# -------------------------
+*.mode1v3
+*.mode2v3
+*.mozemove
+*.perspectivev3
+*.opex
+xcuserdata/
+*.xccheckout
+DerivedData/
+build/
+*.moved-aside
+*.hmap
+*.ipa
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/xcshareddata/xcschemes/
+*.xcworkspace/*
+!*.xcworkspace/contents.xcworkspacedata
+!*.xcworkspace/xcshareddata/
+.swiftpm/
+
+# -------------------------
+# 4. Server
+# -------------------------
+bin/
+out/
+logs/
+*.log
+!**/src/test/**/logs/
+hs_err_pid*
+replay_pid*
+application-secret.properties
+application-secret.yml
+application-dev.yml
+.env
+.classpath
+.project
+.settings/
+.vscode/
+
+# -------------------------
+# 5. Web
+# -------------------------
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
