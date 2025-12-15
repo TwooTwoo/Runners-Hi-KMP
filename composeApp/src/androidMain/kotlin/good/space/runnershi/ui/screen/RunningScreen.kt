@@ -179,7 +179,7 @@ fun RunningScreen(
                     // 정지(저장) 버튼 (기록이 있을 때만 표시)
                     if (durationSeconds > 0) {
                         Button(
-                            onClick = { viewModel.stopRun() },
+                            onClick = { viewModel.finishRun() },
                             modifier = Modifier.weight(1f).height(56.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                         ) {
