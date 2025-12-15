@@ -167,7 +167,7 @@ fun RunningScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 if (!isRunning) {
-                    // 시작 또는 재개 버튼
+                    // START / RESUME
                     Button(
                         onClick = { viewModel.startRun() },
                         modifier = Modifier.weight(1f).height(56.dp),
@@ -175,8 +175,7 @@ fun RunningScreen(
                     ) {
                         Text(text = if (durationSeconds > 0) "RESUME" else "START")
                     }
-                    
-                    // 정지(저장) 버튼 (기록이 있을 때만 표시)
+                    // FINISH (기록이 있을 때만)
                     if (durationSeconds > 0) {
                         Button(
                             onClick = { viewModel.finishRun() },
@@ -187,13 +186,20 @@ fun RunningScreen(
                         }
                     }
                 } else {
-                    // 일시정지 버튼
+                    // 러닝 중: PAUSE + FINISH 모두 표시
                     Button(
                         onClick = { viewModel.pauseRun() },
-                        modifier = Modifier.fillMaxWidth().height(56.dp),
+                        modifier = Modifier.weight(1f).height(56.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFA000))
                     ) {
                         Text(text = "PAUSE")
+                    }
+                    Button(
+                        onClick = { viewModel.finishRun() },
+                        modifier = Modifier.weight(1f).height(56.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                    ) {
+                        Text(text = "FINISH")
                     }
                 }
             }
