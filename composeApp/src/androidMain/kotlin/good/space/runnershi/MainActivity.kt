@@ -4,10 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import good.space.runnershi.location.AndroidLocationTracker
 import good.space.runnershi.shared.di.androidPlatformModule
 import good.space.runnershi.shared.di.initKoin
+import good.space.runnershi.ui.screen.RunningScreen
+import good.space.runnershi.viewmodel.RunningViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -16,8 +20,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
+        // 1. 의존성 주입 (수동)
+        val locationTracker = AndroidLocationTracker(this)
+        val viewModel = RunningViewModel(locationTracker)
+
         setContent {
-            App()
+            MaterialTheme {
+                // 2. 화면 표시
+                RunningScreen(viewModel = viewModel)
+            }
         }
     }
 }
@@ -25,5 +36,7 @@ class MainActivity : ComponentActivity() {
 @Preview
 @Composable
 fun AppAndroidPreview() {
-    App()
+    MaterialTheme {
+        // Preview용 더미 ViewModel (실제로는 사용하지 않음)
+    }
 }

@@ -31,6 +31,8 @@ kotlinx-coroutines-test = "1.9.0"
 kotlinx-coroutines = "1.7.3"
 # Google Play Services
 play-services-location = "21.0.1"
+maps-compose = "4.3.0"
+google-play-services-maps = "18.2.0"
 # Spring Boot
 springBoot = "3.4.1"
 springDependencyManagement = "1.1.7"
@@ -95,6 +97,8 @@ spring-boot-starter-json = { module = "org.springframework.boot:spring-boot-star
 
 # Google Play Services
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "play-services-location" }
+maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "maps-compose" }
+play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "google-play-services-maps" }
 
 # 기타
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
