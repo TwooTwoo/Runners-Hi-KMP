@@ -28,6 +28,9 @@ skie = "0.9.1"
 # 테스트
 mokkery = "2.5.1"
 kotlinx-coroutines-test = "1.9.0"
+kotlinx-coroutines = "1.7.3"
+# Google Play Services
+play-services-location = "21.0.1"
 # Spring Boot
 springBoot = "3.4.1"
 springDependencyManagement = "1.1.7"
@@ -44,6 +47,7 @@ ktor-client-logging = "3.0.2"
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-test" }
 
 # AndroidX
@@ -88,6 +92,9 @@ multiplatform-settings-no-arg = { module = "com.russhwolf:multiplatform-settings
 spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "springBoot" }
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "springBoot" }
 spring-boot-starter-json = { module = "org.springframework.boot:spring-boot-starter-json", version.ref = "springBoot" }
+
+# Google Play Services
+play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "play-services-location" }
 
 # 기타
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
