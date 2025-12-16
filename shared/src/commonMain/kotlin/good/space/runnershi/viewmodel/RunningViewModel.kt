@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 
 class RunningViewModel(
     private val serviceController: ServiceController,
-    private val runRepository: RunRepository = MockRunRepository() // Repository 주입
+    private val runRepository: RunRepository
 ) {
     private val scope = CoroutineScope(Dispatchers.Main)
     
@@ -81,7 +81,7 @@ class RunningViewModel(
         val paceSecondsPerKm = (seconds / (distanceMeters / 1000.0)).toLong()
         val min = paceSecondsPerKm / 60
         val sec = paceSecondsPerKm % 60
-        return String.format("%02d'%02d''", min, sec)
+        return "%02d'%02d''".format(min, sec)
     }
 
     private fun uploadRunData(result: RunResult) {
