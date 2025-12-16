@@ -59,53 +59,64 @@ class LocalRunningDataSource(context: Context) {
         currentSegmentIndex = 0
     }
 
-    // 5. [핵심] 비정상 종료 복구 (앱 켤 때 호출)
-    suspend fun recoverLastRunIfAny(): Boolean = withContext(Dispatchers.IO) {
-        // 끝나지 않은 세션이 있는지 확인
-        val unfinishedSession = dao.getUnfinishedSession() ?: return@withContext false
+    // 5-1. [감지] 복구할 데이터가 있는지 확인만 하는 함수 (UI 트리거용)
+    suspend fun hasUnfinishedRun(): Boolean = withContext(Dispatchers.IO) {
+        dao.getUnfinishedSession() != null
+    }
 
+    // 5-2. [복구] 실제 복구 수행 (사용자가 "예" 했을 때)
+    suspend fun restoreRun(): Boolean = withContext(Dispatchers.IO) {
+        val unfinishedSession = dao.getUnfinishedSession() ?: return@withContext false
         val runId = unfinishedSession.runId
         val points = dao.getLocationsBySession(runId)
 
-        if (points.isEmpty()) return@withContext false
+        if (points.isEmpty()) {
+            discardRun() // 데이터가 껍데기만 있으면 삭제
+            return@withContext false
+        }
 
-        // --- 메모리(StateManager)로 데이터 복구 ---
+        // --- StateManager 복구 로직 (기존과 동일) ---
         currentRunId = runId
         
-        // 1. 요약 정보 복구
         RunningStateManager.reset()
-        RunningStateManager.setRunningState(false) // 일단 PAUSE 상태로 복구
+        RunningStateManager.setRunningState(false) // PAUSE 상태로 시작
         RunningStateManager.updateDuration(unfinishedSession.durationSeconds)
         RunningStateManager.restoreTotalDistance(unfinishedSession.totalDistance)
 
-        // 2. 경로 복구 (Multi-Segment 구조 재조립)
-        // segmentIndex별로 그룹화: { 0: [Loc, Loc...], 1: [Loc...] }
+        // 경로 재조립
         val segmentsMap = points.groupBy { it.segmentIndex }
-        
-        // 정렬된 리스트로 변환
         val maxIndex = segmentsMap.keys.maxOrNull() ?: 0
-        currentSegmentIndex = maxIndex // 마지막 세그먼트 인덱스 기억
+        currentSegmentIndex = maxIndex
 
-        // StateManager의 경로 리스트 재구성
         val recoveredSegments = mutableListOf<List<LocationModel>>()
         for (i in 0..maxIndex) {
             val entities = segmentsMap[i] ?: emptyList()
             val models = entities.map { 
-                LocationModel(it.latitude, it.longitude, it.timestamp) // altitude 제거됨
+                LocationModel(it.latitude, it.longitude, it.timestamp) 
             }
             recoveredSegments.add(models)
         }
-        
         RunningStateManager.restorePathSegments(recoveredSegments)
         
-        // 마지막 위치 설정
+        // 마지막 위치 복구
         val lastPoint = points.last()
         RunningStateManager.updateLocation(
-            LocationModel(lastPoint.latitude, lastPoint.longitude, lastPoint.timestamp), // altitude 제거됨
+            LocationModel(lastPoint.latitude, lastPoint.longitude, lastPoint.timestamp),
             0.0
         )
 
         return@withContext true
+    }
+
+    // 5-3. [폐기] 복구 거부 시 데이터 삭제 (사용자가 "아니요" 했을 때)
+    suspend fun discardRun() = withContext(Dispatchers.IO) {
+        val unfinishedSession = dao.getUnfinishedSession()
+        unfinishedSession?.let {
+            // DB에서 해당 세션 삭제 (CASCADE로 좌표도 삭제됨)
+            dao.deleteSessionById(it.runId)
+        }
+        currentRunId = null
+        currentSegmentIndex = 0
     }
 }
 

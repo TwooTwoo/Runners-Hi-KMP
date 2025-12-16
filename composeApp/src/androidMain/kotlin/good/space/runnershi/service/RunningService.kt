@@ -52,17 +52,8 @@ class RunningService : Service() {
         dbSource = LocalRunningDataSource(this)
         createNotificationChannel()
         
-        // [중요] 앱이 죽었다 살아나서 서비스가 재시작된 경우 복구 시도
-        serviceScope.launch {
-            if (dbSource.recoverLastRunIfAny()) {
-                // 복구 성공 시 알림 띄우기 (PAUSE 상태로)
-                updateNotification(
-                    TimeFormatter.formatSecondsToTime(RunningStateManager.durationSeconds.value),
-                    String.format("%.2f km", RunningStateManager.totalDistanceMeters.value / 1000.0)
-                )
-                // 필요하다면 여기서 ViewModel이나 UI에 "복구됨" 이벤트를 보낼 수도 있음
-            }
-        }
+        // ❌ [삭제] 자동 복구 로직 제거
+        // 사용자가 MainActivity에서 다이얼로그를 통해 복구를 선택할 때만 복구됨
     }
 
     // 서비스가 시작될 때 호출됨 (startService 호출 시)
@@ -177,7 +168,7 @@ class RunningService : Service() {
                             dbSource.saveLocation(newLocation, totalDist, duration)
                         }
                     }
-                } else if (running && lastLoc == null) {
+                } else if (running) {
                     lastLocation = newLocation
                     RunningStateManager.updateLocation(newLocation, 0.0)
                     RunningStateManager.addPathPoint(newLocation)

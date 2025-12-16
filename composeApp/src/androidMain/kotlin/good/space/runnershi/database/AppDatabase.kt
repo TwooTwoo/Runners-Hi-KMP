@@ -36,6 +36,10 @@ interface RunningDao {
     // [복구용] 특정 세션의 모든 좌표 가져오기 (시간순 정렬)
     @Query("SELECT * FROM location_points WHERE runSessionId = :runId ORDER BY timestamp ASC")
     suspend fun getLocationsBySession(runId: String): List<LocationEntity>
+
+    // [폐기용] 세션 삭제 (CASCADE로 좌표도 자동 삭제됨)
+    @Query("DELETE FROM run_sessions WHERE runId = :runId")
+    suspend fun deleteSessionById(runId: String)
 }
 
 @Database(entities = [RunSessionEntity::class, LocationEntity::class], version = 2)
