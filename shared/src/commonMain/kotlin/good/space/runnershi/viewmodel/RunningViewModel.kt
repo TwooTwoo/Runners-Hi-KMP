@@ -6,12 +6,15 @@ import good.space.runnershi.repository.RunRepository
 import good.space.runnershi.service.ServiceController
 import good.space.runnershi.state.RunningStateManager
 import good.space.runnershi.util.format
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 
 class RunningViewModel(
     private val serviceController: ServiceController,
@@ -99,7 +102,7 @@ class RunningViewModel(
         } else {
             // 조건 미달: 서버 전송 안 함 (로그만 남김)
             // 사용자는 결과 화면을 보고 있지만, 이 데이터는 서버에 남지 않습니다.
-            println("⚠️ 기록 미달로 서버 저장 건너뜀 (거리: ${result.totalDistanceMeters}m, 시간: ${result.durationSeconds}초)")
+            println("⚠️ 기록 미달로 서버 저장 건너뜀 (거리: ${result.totalDistanceMeters}m, 시간: ${result.duration.inWholeSeconds}초)")
             // RoomDB 데이터 삭제 (쓰레기 데이터 방지)
             scope.launch {
                 onFinishCallback?.invoke()
@@ -109,19 +112,45 @@ class RunningViewModel(
     
     // 서버 전송 조건 검사
     private fun shouldUploadToServer(result: RunResult): Boolean {
-        return result.totalDistanceMeters >= 100.0 && result.durationSeconds >= 60
+        return result.totalDistanceMeters >= 100.0 && result.duration.inWholeSeconds >= 60
     }
 
     private fun createRunResultSnapshot(): RunResult {
         val distance = RunningStateManager.totalDistanceMeters.value
-        val seconds = RunningStateManager.durationSeconds.value
+        val durationSeconds = RunningStateManager.durationSeconds.value
+        val startTime = RunningStateManager.startTime.value
+        val finishedAt = Clock.System.now()
+        
+        // duration: 실제 러닝 시간 (PAUSE 시간 제외)
+        val duration = durationSeconds.toDuration(DurationUnit.SECONDS)
+        
+        // totalTime: 휴식시간을 포함한 총 시간 (시작부터 종료까지)
+        val totalTime = if (startTime != null) {
+            val calculated = finishedAt - startTime
+            // 방어 로직: 음수나 0이면 duration을 사용 (최소한의 값 보장)
+            if (calculated.isPositive()) calculated else duration
+        } else {
+            // startTime이 null인 경우 (비정상 상황, 방어 코드)
+            println("⚠️ [RunningViewModel] startTime이 null입니다. duration을 사용합니다.")
+            duration
+        }
+        
+        // 추가 검증: totalTime이 duration보다 작으면 duration 사용
+        val finalTotalTime = if (totalTime >= duration) {
+            totalTime
+        } else {
+            println("⚠️ [RunningViewModel] totalTime($totalTime) < duration($duration). duration을 사용합니다.")
+            duration
+        }
         
         return RunResult(
             totalDistanceMeters = distance,
-            durationSeconds = seconds,
+            duration = duration,
+            totalTime = finalTotalTime,
             pathSegments = RunningStateManager.pathSegments.value,
             calories = (distance * 0.06).toInt(), // 단순 예시 계산
-            avgPace = calculatePace(distance, seconds)
+            startedAt = startTime ?: finishedAt, // null이면 현재 시간 사용
+            avgPace = calculatePace(distance, durationSeconds)
         )
     }
     
