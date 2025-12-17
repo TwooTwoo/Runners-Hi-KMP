@@ -7,4 +7,5 @@ import good.space.runnershi.model.dto.auth.SignUpRequest
 interface AuthRepository {
     suspend fun login(request: LoginRequest): Result<LoginResponse>
     suspend fun signUp(request: SignUpRequest): Result<LoginResponse>
+    suspend fun logout(): Result<Unit>
 }

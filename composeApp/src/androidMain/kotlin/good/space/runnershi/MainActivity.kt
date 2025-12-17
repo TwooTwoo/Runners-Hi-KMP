@@ -80,17 +80,19 @@ class MainActivity : ComponentActivity() {
                 })
             }
         }
-        val authRepository = AuthRepositoryImpl(authHttpClient, baseUrl)
         
         // 4. ApiClient 생성 (인증 플러그인 포함)
         val apiClient = ApiClient(tokenStorage, baseUrl)
+        
+        // 5. AuthRepository 생성 (로그아웃은 인증이 필요하므로 apiClient.httpClient 사용)
+        val authRepository = AuthRepositoryImpl(authHttpClient, baseUrl, apiClient.httpClient)
         val serviceController = AndroidServiceController(this)
 
         // 5. RunRepository 생성
         // TODO: 서버 API가 준비되면 RunRepositoryImpl(apiClient)로 변경
         val runRepository = MockRunRepository() // 테스트용 Mock 데이터 사용
         val runningViewModel = RunningViewModel(serviceController, runRepository)
-        val mainViewModel = MainViewModel(tokenStorage, apiClient)
+        val mainViewModel = MainViewModel(tokenStorage, apiClient, authRepository)
         val loginViewModel = LoginViewModel(authRepository, tokenStorage)
         val signUpViewModel = SignUpViewModel(authRepository, tokenStorage)
         

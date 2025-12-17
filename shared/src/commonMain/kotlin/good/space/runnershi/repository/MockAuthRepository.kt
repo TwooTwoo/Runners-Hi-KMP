@@ -22,5 +22,11 @@ class MockAuthRepository : AuthRepository {
             )
         )
     }
+
+    override suspend fun logout(): Result<Unit> {
+        delay(500) // 네트워크 지연 시뮬레이션
+        println("📡 [Mock Server] Logout")
+        return Result.success(Unit)
+    }
 }
 

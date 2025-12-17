@@ -2,6 +2,7 @@ package good.space.runnershi.viewmodel
 
 import good.space.runnershi.auth.TokenStorage
 import good.space.runnershi.network.ApiClient
+import good.space.runnershi.repository.AuthRepository
 import good.space.runnershi.state.RunningStateManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +19,8 @@ sealed class AppState {
 
 class MainViewModel(
     private val tokenStorage: TokenStorage,
-    private val apiClient: ApiClient
+    private val apiClient: ApiClient,
+    private val authRepository: AuthRepository
 ) {
     // 로그아웃 시 DB 데이터 삭제를 위한 콜백
     var onLogoutCallback: (suspend () -> Unit)? = null
@@ -60,15 +62,23 @@ class MainViewModel(
     
     // 로그아웃 처리
     suspend fun logout() {
-        // 1. Room DB의 러닝 데이터 삭제 (로그아웃 시 모든 미완료 데이터 제거)
+        // 1. 서버에 로그아웃 요청 (실패해도 로컬 로그아웃은 진행)
+        authRepository.logout()
+            .onFailure { e ->
+                // 서버 로그아웃 실패 시에도 로컬 로그아웃은 진행
+                println("⚠️ 서버 로그아웃 실패: ${e.message}")
+            }
+        
+        // 2. Room DB의 러닝 데이터 삭제 (로그아웃 시 모든 미완료 데이터 제거)
         onLogoutCallback?.invoke()
         
-        // 2. 러닝 상태 초기화 (시간, 거리, 경로 등 모든 러닝 정보 리셋)
+        // 3. 러닝 상태 초기화 (시간, 거리, 경로 등 모든 러닝 정보 리셋)
         RunningStateManager.reset()
         
-        // 3. 토큰 삭제를 먼저 완료한 후 상태 변경
+        // 4. 로컬 토큰 삭제 (AccessToken과 RefreshToken 제거)
         tokenStorage.clearTokens()
-        // 토큰이 정말 삭제되었는지 확인
+        
+        // 5. 토큰이 정말 삭제되었는지 확인 후 상태 변경
         val token = tokenStorage.getAccessToken()
         if (token.isNullOrEmpty()) {
             _appState.value = AppState.NeedsLogin
