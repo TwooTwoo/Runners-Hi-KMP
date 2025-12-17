@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 
 class RunningViewModel(
     private val serviceController: ServiceController,
@@ -116,7 +117,7 @@ class RunningViewModel(
         val distance = RunningStateManager.totalDistanceMeters.value
         val durationSeconds = RunningStateManager.durationSeconds.value
         val startTime = RunningStateManager.startTime.value
-        val finishedAt = System.currentTimeMillis()
+        val finishedAt = Clock.System.now().toEpochMilliseconds()
         
         // totalSeconds: 휴식시간을 포함한 총 시간 (시작부터 종료까지)
         val totalSeconds = if (startTime != null) {
