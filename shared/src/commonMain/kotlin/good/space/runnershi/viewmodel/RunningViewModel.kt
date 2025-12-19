@@ -16,9 +16,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 
@@ -41,17 +42,21 @@ class RunningViewModel(
     val vehicleWarningCount: StateFlow<Int> = RunningStateManager.vehicleWarningCount
 
     // [New] 실시간 페이스 계산 (StateFlow)
-    // 거리나 시간이 업데이트될 때마다 자동으로 페이스를 다시 계산합니다.
-    val currentPace: StateFlow<String> = combine(
-        totalDistanceMeters,
-        durationSeconds
-    ) { distance, seconds ->
-        PaceCalculator.calculatePace(distance, seconds)
-    }.stateIn(
-        scope = scope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = "-'--''"
-    )
+    // 오직 '거리'가 변경될 때만 페이스를 재계산합니다.
+    // 시간은 흐르고 있지만, 계산 시점의 값만 "조회(Snapshot)"해서 사용합니다.
+    // 이렇게 하면 GPS 위치가 잡힐 때만 페이스가 갱신되어, 신호 대기 중이거나 멈춰 있을 때 페이스가 계속 느려지는 현상을 방지합니다.
+    val currentPace: StateFlow<String> = totalDistanceMeters
+        .map { distance ->
+            // 시간은 흐르고 있지만, 계산 시점의 값만 "조회(Snapshot)"해서 씁니다.
+            val currentDuration = durationSeconds.value
+            PaceCalculator.calculatePace(distance, currentDuration)
+        }
+        .distinctUntilChanged() // 동일한 페이스 값이면 재방출 방지 (성능 최적화 및 무한 재구성 방지)
+        .stateIn(
+            scope = scope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = "-'--''"
+        )
 
     // 결과 화면 표시 여부 및 데이터
     private val _runResult = MutableStateFlow<RunResult?>(null)
@@ -173,14 +178,6 @@ class RunningViewModel(
             startedAt = startTime ?: finishedAt // null이면 현재 시간 사용
             // movingPace와 elapsedPace는 RunResult 모델에서 자동 계산됨
         )
-    }
-    
-    private fun calculatePace(distanceMeters: Double, seconds: Long): String {
-        if (distanceMeters == 0.0) return "00'00''"
-        val paceSecondsPerKm = (seconds / (distanceMeters / 1000.0)).toLong()
-        val min = paceSecondsPerKm / 60
-        val sec = paceSecondsPerKm % 60
-        return "%02d'%02d''".format(min, sec)
     }
 
     private fun uploadRunData(result: RunResult) {

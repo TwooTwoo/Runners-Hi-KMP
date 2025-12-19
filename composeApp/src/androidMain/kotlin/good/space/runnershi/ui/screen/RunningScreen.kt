@@ -33,6 +33,8 @@ import good.space.runnershi.util.MapsApiKeyChecker
 import good.space.runnershi.util.TimeFormatter
 import good.space.runnershi.viewmodel.MainViewModel
 import good.space.runnershi.viewmodel.RunningViewModel
+import kotlin.math.pow
+import kotlin.math.sqrt
 import kotlinx.coroutines.launch
 
 @Composable
@@ -86,16 +88,28 @@ fun RunningScreen(
     }
 
     // 4. 위치가 바뀔 때마다 카메라 이동 (Follow User)
+    var lastAnimatedLocation by remember { mutableStateOf<LatLng?>(null) }
     LaunchedEffect(currentLocation) {
         currentLocation?.let { loc ->
             val latLng = LatLng(loc.latitude, loc.longitude)
-            // 줌 레벨 17f 정도로 부드럽게 이동
-            cameraPositionState.animate(
-                CameraUpdateFactory.newCameraPosition(
-                    CameraPosition.fromLatLngZoom(latLng, 17f)
-                ),
-                1000 // 1초 동안 애니메이션
-            )
+            // 이전 위치와 거리가 충분히 멀 때만 카메라 이동 (무한 애니메이션 방지)
+            val shouldAnimate = lastAnimatedLocation?.let { last ->
+                val latDiff = latLng.latitude - last.latitude
+                val lngDiff = latLng.longitude - last.longitude
+                val distance = sqrt(latDiff.pow(2.0) + lngDiff.pow(2.0))
+                distance > 0.0001 // 약 10m 이상 이동했을 때만 애니메이션
+            } ?: true // 첫 위치는 항상 애니메이션
+            
+            if (shouldAnimate) {
+                lastAnimatedLocation = latLng
+                // 줌 레벨 17f 정도로 부드럽게 이동
+                cameraPositionState.animate(
+                    CameraUpdateFactory.newCameraPosition(
+                        CameraPosition.fromLatLngZoom(latLng, 17f)
+                    ),
+                    1000 // 1초 동안 애니메이션
+                )
+            }
         }
     }
     
