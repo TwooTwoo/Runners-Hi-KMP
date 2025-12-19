@@ -110,7 +110,6 @@ class RunningServiceTest {
         assertThat(response.runId).isEqualTo(100L)
         assertThat(response.userId).isEqualTo(userId)
         assertThat(response.userExp).isEqualTo(3000L)
-        assertThat(response.badges).isEmpty() // 아직 뱃지는 없다고 가정
     }
 
     @Test
@@ -194,7 +193,7 @@ class RunningServiceTest {
         // 새로 획득한 뱃지 목록 검증
         // 초기값 300.0 + 1500.0 = 1800.0m이므로 CUMULATIVE_LV1(1000m 이상) 달성
         assertThat(response.newBadges).isNotEmpty
-        
+
         // CUMULATIVE_LV1 업적이 포함되어 있는지 확인
         val cumulativeBadge = response.newBadges.find { it.name == Achievement.CUMULATIVE_LV1.name }
         assertThat(cumulativeBadge).isNotNull
@@ -275,6 +274,118 @@ class RunningServiceTest {
         // D. 뱃지 획득 검증 (예: 5km 이상이므로 CUMULATIVE_LV1 획득 가정)
         // 주의: 실제 Achievement 로직에 따라 결과가 다를 수 있음
         // assertThat(response.newBadges).isNotEmpty
+    }
+
+    @Test
+    @DisplayName("기존 업적이 있을 때 새로운 업적 달성 시: achievements에는 전체 업적이, newAchievements에는 새로 달성한 업적만 포함되어야 한다")
+    fun saveRunningStats_WithExistingAchievements() {
+        // ==========================================
+        // 1. Given (기존 업적 5개를 가진 유저 설정)
+        // ==========================================
+        val userId = 3L
+        val fakeUser = createTestUser().apply {
+            this.id = userId
+            
+            // 기존 업적 5개 설정
+            // 1. ATTENDANCE_LV1 (3일 이상)
+            // 2. ATTENDANCE_LV2 (10일 이상)
+            // 3. CUMULATIVE_LV1 (1km 이상)
+            // 4. MAX_DIST_LV1 (3km 이상)
+            // 5. PACE_LV4 (300초/km 이하) - 새로운 러닝보다 좋은 페이스로 설정하여 페이스 업적이 추가로 달성되지 않도록
+            
+            // ATTENDANCE_LV3 달성 직전 상태 (29일)
+            this.totalRunningDays = 29 // 새로운 러닝으로 +1 하면 30일이 되어 ATTENDANCE_LV3 달성
+            this.totalDistanceMeters = 9000.0 // CUMULATIVE_LV2 달성 직전 (10km 이상이 되도록)
+            this.longestDistanceMeters = 3000.0 // MAX_DIST_LV1 달성
+            this.bestPace = 300.0 // PACE_LV4 달성 (새로운 러닝보다 좋은 페이스로 설정하여 페이스 업적이 추가로 달성되지 않도록)
+            this.lastRunDate = kotlinx.datetime.LocalDate.parse("2025-05-31") // 다른 날짜로 설정하여 새로운 날짜로 인식되도록
+            
+            // 기존 업적들을 achievements에 추가
+            this.achievements.add(Achievement.ATTENDANCE_LV1)
+            this.achievements.add(Achievement.ATTENDANCE_LV2)
+            this.achievements.add(Achievement.CUMULATIVE_LV1)
+            this.achievements.add(Achievement.MAX_DIST_LV1)
+
+            this.achievements.add(Achievement.PACE_LV1)
+            this.achievements.add(Achievement.PACE_LV2)
+            this.achievements.add(Achievement.PACE_LV3)
+            this.achievements.add(Achievement.PACE_LV4)
+
+
+            
+            // 기존 업적 개수 확인
+            assertThat(this.achievements.size).isEqualTo(8)
+        }
+
+        // 새로운 러닝 기록으로 2개의 업적을 추가로 달성할 수 있도록 설정
+        // 1. ATTENDANCE_LV3 달성 (30일 이상) - 현재 29일 + 1일 = 30일
+        // 2. CUMULATIVE_LV2 달성 (10km 이상) - 현재 9000m + 1000m = 10000m
+        // 페이스는 기존 bestPace(300초/km)보다 나쁘게 설정하여 페이스 업적이 추가로 달성되지 않도록 함
+        
+        val request = RunCreateRequest(
+            distanceMeters = 1000.0, // 1km (총 거리 10km가 되도록)
+            runningDuration = 10.minutes, // 600초/km 페이스 (기존 300초/km보다 나쁨 -> bestPace 업데이트 안 됨)
+            totalDuration = 10.minutes,
+            startedAt = Instant.parse("2025-06-01T10:00:00Z"), // 다른 날짜 (lastRunDate와 다름)
+            locations = listOf(
+                LocationPoint(
+                    latitude = 37.5,
+                    longitude = 127.0,
+                    timestamp = Instant.parse("2025-06-01T10:00:00Z"),
+                    segmentIndex = 0,
+                    sequenceOrder = 0
+                )
+            )
+        )
+
+        // Mocking
+        `when`(userRepository.findById(userId)).thenReturn(Optional.of(fakeUser))
+        `when`(runningRepository.save(any(Running::class.java))).thenAnswer {
+            val entity = it.getArgument(0) as Running
+            entity.apply { id = 300L }
+        }
+
+        // ==========================================
+        // 2. When (실행)
+        // ==========================================
+        val response = runningService.saveRunningStats(userId, request)
+
+        // ==========================================
+        // 3. Then (검증)
+        // ==========================================
+        
+        // A. achievements에는 기존 5개 + 새로운 2개 = 총 7개가 있어야 함
+        assertThat(fakeUser.achievements.size).isEqualTo(10)
+        assertThat(fakeUser.achievements).contains(
+            Achievement.ATTENDANCE_LV1,
+            Achievement.ATTENDANCE_LV2,
+            Achievement.ATTENDANCE_LV3, // 새로 달성
+            Achievement.CUMULATIVE_LV1,
+            Achievement.CUMULATIVE_LV2, // 새로 달성
+            Achievement.MAX_DIST_LV1,
+            Achievement.PACE_LV4,
+            Achievement.PACE_LV1,
+            Achievement.PACE_LV2,
+            Achievement.PACE_LV3
+        )
+        
+        // B. newAchievements에는 새로 달성한 2개만 있어야 함
+        assertThat(fakeUser.newAchievements.size).isEqualTo(2)
+        assertThat(fakeUser.newAchievements).contains(
+            Achievement.ATTENDANCE_LV3,
+            Achievement.CUMULATIVE_LV2
+        )
+        
+        // C. 응답의 newBadges에도 새로 달성한 2개가 있어야 함
+        assertThat(response.newBadges.size).isEqualTo(2)
+        val newBadgeNames = response.newBadges.map { it.name }.toSet()
+        assertThat(newBadgeNames).contains(
+            Achievement.ATTENDANCE_LV3.name,
+            Achievement.CUMULATIVE_LV2.name
+        )
+        
+        // D. 응답의 badges에는 전체 7개가 있어야 함
+        assertThat(response.badges.size).isEqualTo(10)
     }
 
     // 🛠️ 헬퍼 함수: 테스트용 좌표 리스트 생성기
