@@ -19,7 +19,7 @@ class UserController(
     fun getHomeData(
         @AuthenticationPrincipal userId: Long
     ): ResponseEntity<UserHomeResponse> {
-        val response = userService.loadHomeData(userDetails.userId)
+        val response = userService.loadHomeData(userId)
         return ResponseEntity.ok(response)
     }
 }
