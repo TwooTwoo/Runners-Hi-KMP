@@ -12,6 +12,9 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
 private val LightColorScheme = lightColorScheme(
+    background = White300,
+    onBackground = Gray900,
+
     primary = Blue700,
     onPrimary = White100,
 
