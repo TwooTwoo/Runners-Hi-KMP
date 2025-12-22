@@ -27,6 +27,10 @@ private val LightColorScheme = lightColorScheme(
 )
 
 data class RunnersHiCustomColors(
+    val inputBorder: Color,
+    val inputBorderOnFocused: Color,
+    val inputLabel: Color,
+
     val questLight: Color,
     val questDark: Color,
 
@@ -48,6 +52,10 @@ data class RunnersHiCustomColors(
 )
 
 val LightCustomColors = RunnersHiCustomColors(
+    inputBorder = Blue300,
+    inputBorderOnFocused = Blue700,
+    inputLabel = Blue500,
+
     questLight = SkyBlue50,
     questDark = SkyBlue100,
 
