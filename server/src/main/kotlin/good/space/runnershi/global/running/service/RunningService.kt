@@ -9,6 +9,7 @@ import good.space.runnershi.model.dto.running.RunningHistoryResponse
 import good.space.runnershi.model.dto.running.UpdatedUserResponse
 import good.space.runnershi.model.dto.running.dailyQuestInfo
 import good.space.runnershi.model.dto.running.newBadgeInfo
+import good.space.runnershi.model.dto.user.AvatarInfo
 import good.space.runnershi.user.domain.User
 import good.space.runnershi.user.repository.UserRepository
 import kotlinx.datetime.DateTimeUnit
@@ -95,6 +96,12 @@ class RunningService (
             userId = this.id ?: throw IllegalStateException("ID가 없는 유저입니다."),
             userExp = this.exp,
             totalRunningDays = this.totalRunningDays,
+            avatar = AvatarInfo(
+                head = this.avatar.head,
+                top = this.avatar.top,
+                bottom = this.avatar.bottom,
+                shoes = this.avatar.shoes
+            ),
             badges = this.achievements.map { it.name },
             newBadges = this.newAchievements.map {
                 newBadgeInfo(
