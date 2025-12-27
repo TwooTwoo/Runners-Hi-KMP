@@ -11,9 +11,6 @@ class Avatar(
     var head: HeadItem = HeadItem.NONE,
 
     @Enumerated(EnumType.STRING)
-    var face: FaceItem = FaceItem.NONE,
-
-    @Enumerated(EnumType.STRING)
     var top: TopItem = TopItem.NONE,
 
     @Enumerated(EnumType.STRING)
