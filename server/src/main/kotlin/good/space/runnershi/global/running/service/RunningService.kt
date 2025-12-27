@@ -1,23 +1,53 @@
 package good.space.runnershi.global.running.service
 
-import good.space.runnershi.global.running.entity.Running
+import good.space.runnershi.global.running.domain.Running
 import good.space.runnershi.global.running.mapper.toLongestDistanceDto
 import good.space.runnershi.global.running.repository.RunningRepository
 import good.space.runnershi.model.dto.running.LongestDistance
 import good.space.runnershi.model.dto.running.RunCreateRequest
+import good.space.runnershi.model.dto.running.RunningHistoryResponse
 import good.space.runnershi.model.dto.running.UpdatedUserResponse
 import good.space.runnershi.model.dto.running.dailyQuestInfo
 import good.space.runnershi.model.dto.running.newBadgeInfo
 import good.space.runnershi.user.domain.User
 import good.space.runnershi.user.repository.UserRepository
-import jakarta.transaction.Transactional
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.plus
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class RunningService (
     private val userRepository: UserRepository,
     private val runningRepository: RunningRepository
 ){
+    @Transactional(readOnly = true)
+    fun getRunningHistory(userId: Long, startDate: LocalDate, endDate: LocalDate): List<RunningHistoryResponse> {
+        val timeZone = TimeZone.currentSystemDefault()
+
+        val startInstant = startDate.atStartOfDayIn(timeZone)
+
+        val endInstant = endDate.plus(1, DateTimeUnit.DAY)
+            .atStartOfDayIn(timeZone)
+
+        val runnings = runningRepository.findAllByUserIdAndStartedAtBetween(
+            userId, startInstant, endInstant
+        )
+
+        return runnings.map { running ->
+            RunningHistoryResponse(
+                runId = running.id!!,
+                distanceMeters = running.distanceMeters,
+                durationSeconds = running.duration,
+                startedAt = running.startedAt,
+                averagePace = running.averagePace
+            )
+        }
+    }
+
     @Transactional
     fun saveRunningStats(userId: Long, runCreateRequest: RunCreateRequest): UpdatedUserResponse {
         val user = userRepository.findById(userId)
@@ -41,7 +71,6 @@ class RunningService (
 
         running.createRoute(request.locations)
         running.updateLongestNonStopDistance()
-        user.addRunning(running)
 
         val savedRunning = runningRepository.save(running)
 
