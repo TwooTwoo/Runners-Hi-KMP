@@ -148,9 +148,12 @@ private fun ColumnScope.NameSection(
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
-            ) { onSectionClick() }
+            ) { onSectionClick() },
+        contentAlignment = Alignment.Center
     ) {
-        Column {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Text(
                 text = "이름을 정해주세요",
                 style = if (isActive) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.titleMedium,
@@ -173,7 +176,7 @@ private fun ColumnScope.NameSection(
             } else {
                 Text(
                     text = name.ifBlank { "아직 입력되지 않았습니다" },
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.titleLarge,
                     color = if (name.isBlank()) Color.LightGray else Color.Black
                 )
             }
@@ -196,9 +199,12 @@ private fun ColumnScope.CharacterSection(
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
-            ) { onSectionClick() }
+            ) { onSectionClick() },
+        contentAlignment = Alignment.Center
     ) {
-        Column {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Text(
                 text = if (isActive) "나를 표현할\n캐릭터를 골라주세요" else "선택한 캐릭터",
                 style = if (isActive) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.titleMedium,
