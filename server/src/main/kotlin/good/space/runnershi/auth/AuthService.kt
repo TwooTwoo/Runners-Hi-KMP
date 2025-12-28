@@ -24,6 +24,17 @@ class AuthService(
     private val jwtPlugin: JwtPlugin,
     private val refreshTokenRepository: RefreshTokenRepository
 ) {
+    fun checkEmailDuplicate(email: String){
+        if(userRepository.existsByEmail(email)){
+            throw DuplicateEmailException()
+        }
+    }
+
+    fun checkNameDuplicate(name: String){
+        if(userRepository.existsByName(name)){
+            throw DuplicateNameException()
+        }
+    }
 
     @Transactional
     fun signUp(request: SignUpRequest) {
@@ -33,7 +44,6 @@ class AuthService(
 
         if (userRepository.existsByName(request.name)) {
             throw DuplicateNameException()
-
         }
 
         val encodedPassword = passwordEncoder.encode(request.password)
@@ -43,7 +53,6 @@ class AuthService(
             password = encodedPassword,
             sex = request.sex
         )
-
         userRepository.save(newUser)
     }
 

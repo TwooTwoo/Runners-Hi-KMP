@@ -18,6 +18,31 @@ import org.springframework.web.bind.annotation.*
 class AuthController(
     private val authService: AuthService
 ) {
+    @Operation(summary = "이름 중복체크", description = "이름을 입력받아 중복된 이름인지 조회합니다.")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "204", description = "이름 중복 X"),
+        ApiResponse(responseCode = "409", description = "이름 중복 O")
+    ])
+    @GetMapping("/check-name")
+    fun checkNameDuplicate(@RequestParam("name") name: String): ResponseEntity<String> {
+        authService.checkNameDuplicate(name)
+        return ResponseEntity
+            .status(HttpStatus.NO_CONTENT)
+            .body("이름이 중복되지 않았습니다.")
+    }
+
+    @Operation(summary = "이메일 중복체크", description = "이메일을 입력받아 중복된 이메일인지 조회합니다.")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "204", description = "이메일 중복 X"),
+        ApiResponse(responseCode = "409", description = "이메일 중복 O")
+    ])
+    @GetMapping("/check-email")
+    fun checkEmailDuplicate(@RequestParam("email") email: String): ResponseEntity<String> {
+        authService.checkEmailDuplicate(email)
+        return ResponseEntity
+            .status(HttpStatus.NO_CONTENT)
+            .body("이메일이 중복되지 않았습니다.")
+    }
 
     @Operation(summary = "회원가입", description = "이메일, 비밀번호, 이름 등을 입력받아 새로운 회원을 등록합니다.")
     @ApiResponses(value = [
