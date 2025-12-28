@@ -68,7 +68,7 @@ fun Step1Content(
         PasswordCheckInput(uiState, onPasswordCheckChange)
         Spacer(modifier = Modifier.height(24.dp))
 
-        NextButton(onNextClick)
+        NextButton(uiState, onNextClick)
         Spacer(modifier = Modifier.height(50.dp))
     }
 }
@@ -144,13 +144,15 @@ private fun PasswordCheckInput(
 
 @Composable
 private fun NextButton(
+    uiState: SignUpUiState,
     onClick: () -> Unit
 ) {
     RunnersHiButton(
         text = "시작하기",
         onClick = onClick,
         style = ButtonStyle.FILLED,
-        modifier = Modifier.padding(bottom = 24.dp)
+        modifier = Modifier.padding(bottom = 24.dp),
+        enabled = isNextButtonEnabled(uiState)
     )
 }
 
@@ -171,4 +173,14 @@ private fun Step1ContentPreview() {
             validatePassword = {}
         )
     }
+}
+
+private fun isNextButtonEnabled(uiState: SignUpUiState): Boolean {
+    return uiState.email.isNotBlank() &&
+            uiState.password.isNotBlank() &&
+            uiState.passwordCheck.isNotBlank() &&
+            uiState.emailError == null &&
+            uiState.passwordError == null &&
+            uiState.passwordCheckError == null &&
+            !uiState.isLoading
 }

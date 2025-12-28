@@ -1,7 +1,6 @@
 package good.space.runnershi.ui.signup.steps
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,7 +8,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -68,7 +66,10 @@ fun Step2Content(
     val attemptMoveToCharacter = {
         onValidateName()
 
-        if (uiState.name.isNotBlank() && uiState.nameError == null) {
+        if (uiState.name.isNotBlank()
+            && uiState.nameError == null
+            && uiState.nameVerified
+        ) {
             focusManager.clearFocus()
             focusMode = Step2Focus.Character
         }
