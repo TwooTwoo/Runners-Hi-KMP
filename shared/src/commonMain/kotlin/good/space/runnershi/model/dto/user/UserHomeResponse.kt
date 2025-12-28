@@ -1,5 +1,6 @@
 package good.space.runnershi.model.dto.running
 
+import good.space.runnershi.model.domain.auth.Sex
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -10,7 +11,10 @@ data class UserHomeResponse(
     val totalDistance: Double,
     val totalRunningDays: Long,
     val dailyQuests: List<HomeQuestInfo>,
-    val achievements: List<String>
+    val achievements: List<String>,
+    val sex: Sex,
+    val level: Int,
+    val avatars: List<String>,
 )
 
 @Serializable

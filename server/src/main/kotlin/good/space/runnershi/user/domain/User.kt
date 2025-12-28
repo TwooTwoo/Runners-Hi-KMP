@@ -91,6 +91,8 @@ abstract class User(
     @Embedded
     var avatar: Avatar = Avatar()
 
+    val level: Int = 1
+
     fun refreshDailyQuestsIfNeeded() {
         val today = java.time.LocalDate.now().toKotlinLocalDate()
 
