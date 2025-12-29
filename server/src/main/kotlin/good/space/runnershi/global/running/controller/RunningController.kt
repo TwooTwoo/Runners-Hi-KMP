@@ -1,10 +1,13 @@
 package good.space.runnershi.global.running.controller
 
+import good.space.runnershi.global.running.service.RunningResultPercentileService
 import good.space.runnershi.global.running.service.RunningService
 import good.space.runnershi.model.dto.running.LongestDistance
 import good.space.runnershi.model.dto.running.RunCreateRequest
 import good.space.runnershi.model.dto.running.RunningHistoryResponse
 import good.space.runnershi.model.dto.running.UpdatedUserResponse
+import good.space.runnershi.model.dto.running.percentile.RunningResultPercentileRequest
+import good.space.runnershi.model.dto.running.percentile.RunningResultPercentileResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.format.annotation.DateTimeFormat
@@ -23,7 +26,8 @@ import kotlinx.datetime.toKotlinLocalDate
 @RestController
 @RequestMapping("/api/v1/running")
 class RunningController (
-    private val runningService: RunningService
+    private val runningService: RunningService,
+    private val runningPercentileService: RunningResultPercentileService
 ){
     @Operation(summary = "러닝 데이터 저장", description = "클라이언트가 러닝 종료를 눌렀을 때, 서버에 러닝데이터가 저장되는 API입니다.")
     @PostMapping("/run-records")
@@ -65,5 +69,11 @@ class RunningController (
         )
 
         return ResponseEntity.ok(historyList)
+    }
+
+    @Operation(summary = "달리기 결과 백분위 계산", description = "주어진 달리기 거리(미터)와 시간(분)에 대해 상위 N% 인지 반환합니다.")
+    @PostMapping("/percentile")
+    fun percentile(@RequestBody req: RunningResultPercentileRequest): RunningResultPercentileResponse {
+        return runningPercentileService.calculate(req)
     }
 }

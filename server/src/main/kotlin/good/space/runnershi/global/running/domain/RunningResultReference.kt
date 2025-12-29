@@ -1,6 +1,11 @@
-package good.space.runnershi.percentile.domain
+package good.space.runnershi.global.running.domain
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 import java.time.LocalDate
 
 @Entity

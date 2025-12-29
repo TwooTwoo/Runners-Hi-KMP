@@ -1,6 +1,6 @@
-package good.space.runnershi.percentile.repository
+package good.space.runnershi.global.running.repository
 
-import good.space.runnershi.percentile.domain.RunningResultReference
+import good.space.runnershi.global.running.domain.RunningResultReference
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param

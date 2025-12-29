@@ -1,14 +1,15 @@
-package good.space.runnershi.percentile.service
+package good.space.runnershi.global.running.service
 
+import good.space.runnershi.global.running.repository.RunningResultReferenceRepository
 import good.space.runnershi.model.dto.running.percentile.RunningResultPercentileRequest
 import good.space.runnershi.model.dto.running.percentile.RunningResultPercentileResponse
-import good.space.runnershi.percentile.repository.RunningResultReferenceRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import kotlin.math.roundToInt
 
 @Service
-class RunningResultPercentileService(
+class
+RunningResultPercentileService(
     private val runningResultReferenceRepository: RunningResultReferenceRepository
 ) {
     @Transactional(readOnly = true)
@@ -66,4 +67,3 @@ class RunningResultPercentileService(
         }
     }
 }
-
