@@ -1,11 +1,11 @@
 package good.space.runnershi.percentile.repository
 
-import good.space.runnershi.percentile.domain.RunResultReference
+import good.space.runnershi.percentile.domain.RunningResultReference
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
-interface RunResultReferenceRepository : JpaRepository<RunResultReference, Long> {
+interface RunningResultReferenceRepository : JpaRepository<RunningResultReference, Long> {
 
     // 추후 보정하는 쿼리를 작성해야 할 가능성이 있으므로 nativequery = true 로 작성함
     @Query(

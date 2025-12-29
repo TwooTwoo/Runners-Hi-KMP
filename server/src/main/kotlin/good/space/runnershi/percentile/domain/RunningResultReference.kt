@@ -5,7 +5,7 @@ import java.time.LocalDate
 
 @Entity
 @Table(name = "reference_runs")
-open class RunResultReference(
+open class RunningResultReference(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

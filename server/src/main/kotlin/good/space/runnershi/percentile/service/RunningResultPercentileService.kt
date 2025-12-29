@@ -1,34 +1,34 @@
 package good.space.runnershi.percentile.service
 
-import good.space.runnershi.model.dto.running.percentile.RunPercentileRequest
-import good.space.runnershi.model.dto.running.percentile.RunPercentileResponse
-import good.space.runnershi.percentile.repository.RunResultReferenceRepository
+import good.space.runnershi.model.dto.running.percentile.RunningResultPercentileRequest
+import good.space.runnershi.model.dto.running.percentile.RunningResultPercentileResponse
+import good.space.runnershi.percentile.repository.RunningResultReferenceRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import kotlin.math.roundToInt
 
 @Service
-class RunResultPercentileService(
-    private val runResultReferenceRepository: RunResultReferenceRepository
+class RunningResultPercentileService(
+    private val runningResultReferenceRepository: RunningResultReferenceRepository
 ) {
     @Transactional(readOnly = true)
-    fun calculate(req: RunPercentileRequest): RunPercentileResponse {
+    fun calculate(req: RunningResultPercentileRequest): RunningResultPercentileResponse {
         val bucket = distanceBucket(req.totalDistanceMeters.toInt())
         val myPace = paceSecPerKm(req.totalDistanceMeters.toInt(), req.durationSec)
 
-        val total = runResultReferenceRepository.countTotal(bucket)
+        val total = runningResultReferenceRepository.countTotal(bucket)
 
         if (total == 0L) {
-            return RunPercentileResponse(
+            return RunningResultPercentileResponse(
                 topPercent = null
             )
         }
 
-        val faster = runResultReferenceRepository.countFasterThanMe(bucket, myPace)
+        val faster = runningResultReferenceRepository.countFasterThanMe(bucket, myPace)
 
         val topPercentRaw = ( faster.toDouble() / total.toDouble()) * 100.0
 
-        return RunPercentileResponse(
+        return RunningResultPercentileResponse(
             topPercent = formatPercent(topPercentRaw)
         )
 
