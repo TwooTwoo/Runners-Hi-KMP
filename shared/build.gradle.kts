@@ -83,6 +83,10 @@ kotlin {
                 implementation(libs.ktor.client.android)
                 implementation(libs.play.services.location)
 
+                // 지도
+                implementation(libs.maps.compose)
+                implementation(libs.play.services.maps)
+
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.androidx.lifecycle.viewmodel.compose) // ViewModel()
                 implementation(libs.androidx.security.crypto)
@@ -115,6 +119,7 @@ android {
     }
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
+        manifestPlaceholders["MAPS_API_KEY"] = localProperties.getProperty("MAPS_API_KEY") ?: ""
     }
 }
 
