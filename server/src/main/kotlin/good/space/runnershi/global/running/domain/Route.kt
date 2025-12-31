@@ -11,8 +11,10 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
+import kotlin.time.ExperimentalTime
 
 @Entity
+@OptIn(ExperimentalTime::class)
 class Route (
     @ManyToOne(fetch = FetchType.LAZY)
     var running: Running? = null,

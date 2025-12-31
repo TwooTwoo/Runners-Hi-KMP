@@ -1,10 +1,11 @@
 package good.space.runnershi.model.dto.running
 
-import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 @Serializable
-data class LocationPoint(
+data class LocationPoint @OptIn(ExperimentalTime::class) constructor(
     val latitude: Double,
     val longitude: Double,
     val timestamp: Instant,

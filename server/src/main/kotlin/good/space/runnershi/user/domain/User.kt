@@ -30,14 +30,16 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.toJavaInstant
 import kotlinx.datetime.toKotlinLocalDate
 import java.time.ZoneId
 import kotlin.time.DurationUnit
+import kotlin.time.ExperimentalTime
+import kotlin.time.toJavaInstant
 
 @Inheritance(strategy = InheritanceType.JOINED)
 @Entity
 @Table(name = "users")
+@OptIn(ExperimentalTime::class)
 abstract class User(
     @Column(unique = true, nullable = false)
     var name: String,

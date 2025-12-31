@@ -10,7 +10,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun HomeRoute(
-    navigateToRun: () -> Unit,
+    navigateToRunning: () -> Unit,
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -18,9 +18,12 @@ fun HomeRoute(
     var showSettingsDialog by remember { mutableStateOf(false) }
     var showTtlDialog by remember { mutableStateOf(false) }
 
+    // 네비게이션 전 키보드 처리를 제거하고 즉시 네비게이션
+    // 키보드 처리는 RunningRoute에서 수행
+
     HomeScreen(
         uiState = uiState,
-        navigateToRun = navigateToRun,
+        navigateToRun = navigateToRunning,
         onSettingsClick = { showSettingsDialog = true },
         onTtlClick = { showTtlDialog = true },
         settingsDialog = {

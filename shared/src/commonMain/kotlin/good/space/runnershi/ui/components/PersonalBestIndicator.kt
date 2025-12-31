@@ -131,7 +131,17 @@ private fun calculateProgressPercent(
     currentDistanceMeters: Double,
     bestDistanceMeters: Double
 ): Float {
-    return (currentDistanceMeters / bestDistanceMeters).toFloat().coerceIn(0f, 1f)
+    // bestDistanceMeters가 0이거나 NaN인 경우 0 반환
+    if (bestDistanceMeters <= 0 || bestDistanceMeters.isNaN() || currentDistanceMeters.isNaN()) {
+        return 0f
+    }
+    val percent = (currentDistanceMeters / bestDistanceMeters).toFloat()
+    // NaN이나 Infinity인 경우 0 반환
+    return if (percent.isNaN() || percent.isInfinite()) {
+        0f
+    } else {
+        percent.coerceIn(0f, 1f)
+    }
 }
 private fun isAchieveBest(
     progressPercent: Float

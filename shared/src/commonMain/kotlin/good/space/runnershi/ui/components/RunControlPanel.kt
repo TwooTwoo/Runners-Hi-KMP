@@ -57,6 +57,7 @@ fun RunControlPanel(
 
             // 버튼 영역
             Row(
+                modifier = Modifier.padding(20.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {

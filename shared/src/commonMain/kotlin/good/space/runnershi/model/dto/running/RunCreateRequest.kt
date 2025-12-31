@@ -1,14 +1,16 @@
 package good.space.runnershi.model.dto.running
 
-import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 import kotlin.time.toDuration
 
 /**
  * Instant를 ISO-8601 문자열로 직렬화/역직렬화
  */
+@OptIn(ExperimentalTime::class)
 object InstantSerializer : kotlinx.serialization.KSerializer<Instant> {
     override val descriptor = kotlinx.serialization.descriptors.PrimitiveSerialDescriptor(
         "Instant",
@@ -43,7 +45,7 @@ object DurationSerializer : kotlinx.serialization.KSerializer<Duration> {
 }
 
 @Serializable
-data class RunCreateRequest(
+data class RunCreateRequest @OptIn(ExperimentalTime::class) constructor(
     // [Header] 러닝 요약 정보
     val distanceMeters: Double,
     @Serializable(with = DurationSerializer::class)

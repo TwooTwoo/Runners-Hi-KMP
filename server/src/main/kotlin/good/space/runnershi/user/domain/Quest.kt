@@ -3,7 +3,9 @@ package good.space.runnershi.user.domain
 import good.space.runnershi.global.running.domain.Running
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 enum class Quest(
     val title: String,
     val level: Long,

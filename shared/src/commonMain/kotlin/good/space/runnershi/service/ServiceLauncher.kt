@@ -1,6 +1,6 @@
 package good.space.runnershi.service
 
-interface ServiceController {
+interface ServiceLauncher {
     fun startService()
     fun pauseService()
     fun resumeService()

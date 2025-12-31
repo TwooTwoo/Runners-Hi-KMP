@@ -11,17 +11,19 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
-import kotlinx.datetime.Instant
 import kotlin.time.Duration
 import good.space.runnershi.global.running.converter.KotlinDurationConverter
 import good.space.runnershi.global.running.converter.KotlinInstantConverter
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 @Entity
+@OptIn(ExperimentalTime::class)
 class Running (
     @Convert(converter = KotlinDurationConverter::class)
     @Column(nullable = false)
     val duration: Duration, // 실제 러닝 시간 (PAUSE 시간 제외)
-    
+
     @Convert(converter = KotlinDurationConverter::class)
     @Column(nullable = false)
     val totalTime: Duration, // 휴식시간을 포함한 총 시간

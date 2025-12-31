@@ -1,7 +1,8 @@
 package good.space.runnershi.model.domain.running
 
 import good.space.runnershi.model.domain.location.LocationModel
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 /**
  * 사용자의 이동 상태를 분석한 결과를 담는다.
@@ -35,7 +36,7 @@ enum class MovementStatus {
  *
  * @property clock 시간 측정을 위한 Clock 인스턴스 (테스트 시 주입 가능).
  */
-class MovementAnalyzer(
+class MovementAnalyzer @OptIn(ExperimentalTime::class) constructor(
     private val stopThreshold: Float = 1.2f,
     private val moveThreshold: Float = 1.8f,
     private val vehicleThreshold: Float = 8.33f,
@@ -58,6 +59,7 @@ class MovementAnalyzer(
     private var statusConfirmedAt: Long = now
 
     // 현재 시간
+    @OptIn(ExperimentalTime::class)
     private val now: Long
         get() = clock.now().toEpochMilliseconds()
 

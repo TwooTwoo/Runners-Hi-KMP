@@ -14,6 +14,7 @@ import good.space.runnershi.model.dto.user.AvatarInfo
 import good.space.runnershi.state.LevelPolicy
 import good.space.runnershi.user.domain.User
 import good.space.runnershi.user.repository.UserRepository
+import jdk.jfr.Experimental
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -21,8 +22,10 @@ import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.plus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import kotlin.time.ExperimentalTime
 
 @Service
+@OptIn(ExperimentalTime::class)
 class RunningService (
     private val userRepository: UserRepository,
     private val runningRepository: RunningRepository

@@ -4,8 +4,10 @@ import good.space.runnershi.model.domain.RunResult
 import good.space.runnershi.model.dto.running.LocationPoint
 import good.space.runnershi.model.dto.running.RunCreateRequest
 import kotlinx.datetime.Instant
+import kotlin.time.ExperimentalTime
 
 object RunMapper {
+    @OptIn(ExperimentalTime::class)
     fun mapToCreateRequest(domain: RunResult): RunCreateRequest {
         val flatLocations = mutableListOf<LocationPoint>()
         var globalOrder = 0

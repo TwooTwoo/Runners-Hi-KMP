@@ -4,8 +4,10 @@ import good.space.runnershi.model.domain.location.LocationModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.datetime.Instant
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
+@OptIn(ExperimentalTime::class)
 // 앱 어디서든 접근 가능한 러닝 데이터 저장소
 object RunningStateManager {
     // 상태 변수들 (ViewModel에 있던 것들 이동)
@@ -95,6 +97,7 @@ object RunningStateManager {
         _pauseType.value = PauseType.NONE
     }
     
+    @OptIn(ExperimentalTime::class)
     fun reset() {
         _currentLocation.value = null
         _totalDistanceMeters.value = 0.0
@@ -107,6 +110,7 @@ object RunningStateManager {
     }
     
     // 러닝 시작 시간 설정 (첫 START 버튼 클릭 시)
+    @OptIn(ExperimentalTime::class)
     fun setStartTime(instant: Instant) {
         _startTime.value = instant
     }

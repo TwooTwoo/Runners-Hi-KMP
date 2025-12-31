@@ -9,10 +9,12 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
-import kotlinx.datetime.Instant
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 @Entity
 @Table(name = "route_points")
+@OptIn(ExperimentalTime::class)
 class Point (
     val latitude: Double, //위도
     val longitude: Double, //경도

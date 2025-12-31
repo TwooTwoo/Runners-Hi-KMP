@@ -1,15 +1,18 @@
 package good.space.runnershi.database
 
 import android.content.Context
+import android.util.Log
 import good.space.runnershi.model.domain.location.LocationModel
 import good.space.runnershi.state.RunningStateManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Instant
 import java.util.UUID
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
+@OptIn(ExperimentalTime::class)
 class LocalRunningDataSource(private val context: Context) {
     private val database: AppDatabase by lazy {
         AppDatabase.getDatabase(context)
@@ -126,7 +129,7 @@ class LocalRunningDataSource(private val context: Context) {
             dao.insertLocations(locationsToSave)
         }
         
-        android.util.Log.d("LocalRunningDataSource", "💾 Flushed ${locationsToSave.size} locations to DB")
+        Log.d("LocalRunningDataSource", "💾 Flushed ${locationsToSave.size} locations to DB")
     }
     
     /**

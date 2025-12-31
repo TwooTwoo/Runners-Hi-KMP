@@ -1,5 +1,8 @@
 package good.space.runnershi.model.dto.running
 
-class LongestDistance (
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class LongestDistance(
     val longestDistance: Double
 )

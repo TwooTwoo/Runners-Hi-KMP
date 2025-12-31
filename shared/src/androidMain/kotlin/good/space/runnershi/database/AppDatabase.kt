@@ -56,7 +56,7 @@ interface RunningDao {
     suspend fun deleteAllSessions()
 }
 
-@Database(entities = [RunSessionEntity::class, LocationEntity::class], version = 2)
+@Database(entities = [RunSessionEntity::class, LocationEntity::class], version = 3)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun runningDao(): RunningDao
 
@@ -91,6 +91,14 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // 마이그레이션 (2 -> 3): speed, accuracy 컬럼 추가
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE location_points ADD COLUMN speed REAL NOT NULL DEFAULT 0.0")
+                db.execSQL("ALTER TABLE location_points ADD COLUMN accuracy REAL NOT NULL DEFAULT 0.0")
+            }
+        }
+
         /**
          * 데이터베이스 인스턴스를 가져옵니다.
          * 
@@ -108,7 +116,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "runners_hi.db"
                 )
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .build()
                 .also { INSTANCE = it }
             }

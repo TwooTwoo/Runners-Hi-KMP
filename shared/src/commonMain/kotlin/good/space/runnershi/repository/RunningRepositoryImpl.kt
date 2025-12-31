@@ -2,17 +2,18 @@ package good.space.runnershi.repository
 
 import good.space.runnershi.mapper.RunMapper
 import good.space.runnershi.model.domain.RunResult
-import good.space.runnershi.model.dto.running.PersonalBestResponse
+import good.space.runnershi.model.dto.running.LongestDistance
+import good.space.runnershi.model.dto.running.UpdatedUserResponse
 import good.space.runnershi.network.ApiClient
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 
-class RunRepositoryImpl(
+class RunningRepositoryImpl(
     private val apiClient: ApiClient
-) : RunRepository {
+) : RunningRepository {
     
-    override suspend fun saveRun(runResult: RunResult): Result<String> {
+    override suspend fun saveRun(runResult: RunResult): Result<UpdatedUserResponse> {
         return try {
             // 1. Domain Model -> DTO 변환
             val request = RunMapper.mapToCreateRequest(runResult)
@@ -24,9 +25,8 @@ class RunRepositoryImpl(
             }
             
             if (response.status == HttpStatusCode.OK) {
-                // 서버는 Long 타입의 runId를 반환
-                val runId = response.body<Long>()
-                Result.success(runId.toString())
+                val updatedUserResponse = response.body<UpdatedUserResponse>()
+                Result.success(updatedUserResponse)
             } else {
                 Result.failure(Exception("러닝 기록 업로드 실패: ${response.status}"))
             }
@@ -35,19 +35,23 @@ class RunRepositoryImpl(
         }
     }
     
-    override suspend fun getPersonalBest(): Result<PersonalBestResponse?> {
+    override suspend fun getPersonalBest(): Result<LongestDistance?> {
         return try {
-            // GET /api/v1/running/personal-best (실제 엔드포인트는 서버 구현에 따라 변경 가능)
-            val response = apiClient.httpClient.get("${apiClient.baseUrl}/api/v1/running/personal-best")
-            
-            if (response.status == HttpStatusCode.OK) {
-                // 기록이 있으면 데이터 반환
-                Result.success(response.body<PersonalBestResponse>())
-            } else if (response.status == HttpStatusCode.NotFound) {
-                // 아직 기록이 없는 경우
-                Result.success(null)
-            } else {
-                Result.failure(Exception("최대 기록 조회 실패: ${response.status}"))
+            // GET /api/v1/running/LongestDistance
+            val response = apiClient.httpClient.get("${apiClient.baseUrl}/api/v1/running/LongestDistance")
+
+            when (response.status) {
+                HttpStatusCode.OK -> {
+                    val longestDistance = response.body<LongestDistance>()
+                    Result.success(longestDistance)
+                }
+                HttpStatusCode.NotFound -> {
+                    // 아직 기록이 없는 경우
+                    Result.success(null)
+                }
+                else -> {
+                    Result.failure(Exception("최대 거리 조회 실패: ${response.status}"))
+                }
             }
         } catch (e: Exception) {
             Result.failure(e)

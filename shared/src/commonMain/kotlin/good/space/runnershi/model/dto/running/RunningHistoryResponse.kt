@@ -1,11 +1,12 @@
 package good.space.runnershi.model.dto.running
 
-import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 @Serializable
-data class RunningHistoryResponse(
+data class RunningHistoryResponse @OptIn(ExperimentalTime::class) constructor(
     val runId: Long,
 
     @Serializable(with = InstantSerializer::class)
