@@ -15,8 +15,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun RunningRoute(
-    navigateToResult: (UpdatedUserResponse, RunResultToShow) -> Unit,
-    navigateBack: () -> Unit,
+    navigateToResult: (UpdatedUserResponse?, RunningResultToShow) -> Unit,
     viewModel: RunningViewModel = koinViewModel()
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -78,7 +77,7 @@ fun RunningRoute(
                     navigateToResult(event.userInfo, event.runResult)
                 }
                 is RunningUiEvent.RunNotUploadable -> {
-                    // TODO: 일단 결과화면으로 이동 후 표시
+                    navigateToResult(null, event.runResult)
                 }
             }
         }

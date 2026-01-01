@@ -1,10 +1,5 @@
 package good.space.runnershi
 
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.snap
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,7 +9,7 @@ import good.space.runnershi.ui.home.HomeRoute
 import good.space.runnershi.ui.login.LoginRoute
 import good.space.runnershi.ui.navigation.Screen
 import good.space.runnershi.ui.result.ResultRoute
-import good.space.runnershi.ui.running.RunResultToShow
+import good.space.runnershi.ui.running.RunningResultToShow
 import good.space.runnershi.ui.running.RunningRoute
 import good.space.runnershi.ui.signup.SignUpRoute
 import good.space.runnershi.ui.theme.RunnersHiTheme
@@ -76,9 +71,6 @@ fun App() {
                             navController.navigate(Screen.RESULT.name) {
                                 popUpTo(Screen.Home.name)
                             }
-                        },
-                        navigateBack = {
-                            navController.popBackStack()
                         }
                     )
                 }
@@ -87,10 +79,10 @@ fun App() {
                 composable(route = Screen.RESULT.name) {
                     val previousBackStack = navController.previousBackStackEntry
                     val userInfo = previousBackStack?.savedStateHandle?.get<UpdatedUserResponse>("userInfo")
-                    val runResult = previousBackStack?.savedStateHandle?.get<RunResultToShow>("runResult")
+                    val runResult = previousBackStack?.savedStateHandle?.get<RunningResultToShow>("runResult")
 
                     // 데이터가 정상적으로 넘어왔을 때만 화면 표시
-                    if (userInfo != null && runResult != null) {
+                    if (runResult != null) {
                         ResultRoute(
                             userInfo = userInfo,
                             runResult = runResult,

@@ -31,12 +31,14 @@ import kotlin.time.toDuration
 sealed interface RunningUiEvent {
     data class NavigateToResult(
         val userInfo: UpdatedUserResponse,
-        val runResult: RunResultToShow
+        val runResult: RunningResultToShow
     ) : RunningUiEvent
-    data object RunNotUploadable : RunningUiEvent
+    data class RunNotUploadable(
+        val runResult: RunningResultToShow
+    ) : RunningUiEvent
 }
 
-data class RunResultToShow(
+data class RunningResultToShow(
     val distance: Double,
     val runningDuration: Duration,
     val totalDuration: Duration,
@@ -158,7 +160,7 @@ class RunningViewModel(
         } else {
             // 미달 시 서버 전송 안 함 & DB 정리
             viewModelScope.launch {
-                _uiEvent.send(RunningUiEvent.RunNotUploadable)
+                _uiEvent.send(RunningUiEvent.RunNotUploadable(result.toShow))
                 onFinishCallback?.invoke()
             }
         }
@@ -210,25 +212,10 @@ class RunningViewModel(
             runningRepository.saveRun(result)
                 .onSuccess { updatedUserResponse ->
                     _uploadState.value = UploadState.SUCCESS
-
-                    val resultToShow = RunResultToShow(
-                        distance = result.totalDistanceMeters,
-                        runningDuration = result.duration,
-                        totalDuration = result.totalTime,
-                        runningPace = PaceCalculator.calculatePace(
-                            result.totalDistanceMeters,
-                            result.duration.inWholeSeconds
-                        ),
-                        totalPace = PaceCalculator.calculatePace(
-                            result.totalDistanceMeters,
-                            result.totalTime.inWholeSeconds
-                        ),
-                        calory = result.calories
-                    )
                     _uiEvent.send(
                         RunningUiEvent.NavigateToResult(
                             userInfo = updatedUserResponse,
-                            runResult = resultToShow
+                            runResult = result.toShow
                         )
                     )
 
@@ -239,4 +226,22 @@ class RunningViewModel(
                 }
         }
     }
+
+    private val RunResult.toShow: RunningResultToShow
+        get() {
+            return RunningResultToShow(
+                distance = totalDistanceMeters,
+                runningDuration = duration,
+                totalDuration = totalTime,
+                runningPace = PaceCalculator.calculatePace(
+                    totalDistanceMeters,
+                    duration.inWholeSeconds
+                ),
+                totalPace = PaceCalculator.calculatePace(
+                    totalDistanceMeters,
+                    totalTime.inWholeSeconds
+                ),
+                calory = calories
+            )
+        }
 }
