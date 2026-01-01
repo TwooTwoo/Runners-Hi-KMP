@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
@@ -38,14 +39,24 @@ sealed interface RunningUiEvent {
     ) : RunningUiEvent
 }
 
+@Serializable
 data class RunningResultToShow(
     val distance: Double,
-    val runningDuration: Duration,
-    val totalDuration: Duration,
+    val runningDurationMillis: Long,
+    val totalDurationMillis: Long,
     val runningPace: String,
     val totalPace: String,
     val calory: Int
-)
+) {
+    // Duration으로 변환하는 헬퍼 프로퍼티
+    @OptIn(ExperimentalTime::class)
+    val runningDuration: Duration
+        get() = runningDurationMillis.toDuration(DurationUnit.MILLISECONDS)
+    
+    @OptIn(ExperimentalTime::class)
+    val totalDuration: Duration
+        get() = totalDurationMillis.toDuration(DurationUnit.MILLISECONDS)
+}
 
 enum class UploadState {
     IDLE, UPLOADING, SUCCESS, FAILURE
@@ -231,8 +242,8 @@ class RunningViewModel(
         get() {
             return RunningResultToShow(
                 distance = totalDistanceMeters,
-                runningDuration = duration,
-                totalDuration = totalTime,
+                runningDurationMillis = duration.inWholeMilliseconds,
+                totalDurationMillis = totalTime.inWholeMilliseconds,
                 runningPace = PaceCalculator.calculatePace(
                     totalDistanceMeters,
                     duration.inWholeSeconds

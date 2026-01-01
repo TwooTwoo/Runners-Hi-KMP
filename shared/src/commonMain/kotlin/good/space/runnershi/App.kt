@@ -1,6 +1,7 @@
 package good.space.runnershi
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -13,6 +14,7 @@ import good.space.runnershi.ui.running.RunningResultToShow
 import good.space.runnershi.ui.running.RunningRoute
 import good.space.runnershi.ui.signup.SignUpRoute
 import good.space.runnershi.ui.theme.RunnersHiTheme
+import kotlinx.serialization.json.Json
 import org.koin.compose.KoinContext
 
 @Composable
@@ -65,8 +67,13 @@ fun App() {
                     RunningRoute(
                         navigateToResult = { userInfo, runResult ->
                             navController.currentBackStackEntry?.savedStateHandle?.apply {
-                                set("userInfo", userInfo)
-                                set("runResult", runResult)
+                                val json = Json { ignoreUnknownKeys = true }
+
+                                userInfo?.let {
+                                    set("userInfo", json.encodeToString(UpdatedUserResponse.serializer(), it))
+                                }
+
+                                set("runResult", json.encodeToString(RunningResultToShow.serializer(), runResult))
                             }
                             navController.navigate(Screen.RESULT.name) {
                                 popUpTo(Screen.Home.name)
@@ -78,8 +85,25 @@ fun App() {
                 // 결과 화면
                 composable(route = Screen.RESULT.name) {
                     val previousBackStack = navController.previousBackStackEntry
-                    val userInfo = previousBackStack?.savedStateHandle?.get<UpdatedUserResponse>("userInfo")
-                    val runResult = previousBackStack?.savedStateHandle?.get<RunningResultToShow>("runResult")
+                    val json = Json { ignoreUnknownKeys = true }
+
+                    val userInfoJson = previousBackStack?.savedStateHandle?.get<String>("userInfo")
+                    val userInfo = userInfoJson?.let {
+                        try {
+                            json.decodeFromString(UpdatedUserResponse.serializer(), it)
+                        } catch (_: Exception) {
+                            null
+                        }
+                    }
+
+                    val runResultJson = previousBackStack?.savedStateHandle?.get<String>("runResult")
+                    val runResult = runResultJson?.let {
+                        try {
+                            json.decodeFromString(RunningResultToShow.serializer(), it)
+                        } catch (_: Exception) {
+                            null
+                        }
+                    }
 
                     // 데이터가 정상적으로 넘어왔을 때만 화면 표시
                     if (runResult != null) {
