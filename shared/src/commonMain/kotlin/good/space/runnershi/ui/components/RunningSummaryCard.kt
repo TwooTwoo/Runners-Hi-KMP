@@ -39,7 +39,7 @@ fun RunningSummaryCard(
     totalTime: String,
     totalPace: String,
     calories: Int,
-    earnedExp: Int? = null,
+    earnedExp: Long? = null,
     modifier: Modifier = Modifier
 ) {
     val customColors = RunnersHiTheme.custom
