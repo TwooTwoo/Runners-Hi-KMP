@@ -81,7 +81,7 @@ class RunningService (
     }
 
     private fun updateUserByRunnigData(user: User, running: Running): Unit {
-        user.increaseExp(running.distanceMeters.toLong());
+        user.increaseExp(running.distanceMeters.toLong()/10);
         user.updateRunningStats(running)
     }
 
@@ -127,7 +127,8 @@ class RunningService (
                     exp = quest.exp,
                     isComplete = true
                 )
-            }
+            },
+            runningExp = running.distanceMeters.toLong() / 10
         )
     }
 }

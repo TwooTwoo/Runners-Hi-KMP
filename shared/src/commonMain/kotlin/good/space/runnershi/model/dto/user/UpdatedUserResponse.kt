@@ -17,6 +17,7 @@ data class UpdatedUserResponse(
     val unlockedAvatars: List<NewUnlockedAvatarInfo>,
     val userExpProgressPercentage: Int,
     val completedQuests: List<dailyQuestInfo>,
+    val runningExp: Long
 )
 
 @Serializable
